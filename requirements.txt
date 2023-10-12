@@ -1,0 +1,13 @@
+langchain
+wget
+sentence-transformers
+ibm-watson-machine-learning>=1.0.320
+pydantic==1.10.0
+chromadb
+python-dotenv
+eventlet
+flask
+celery
+flask_socketio
+flask_cors
+redis
