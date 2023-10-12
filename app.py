@@ -7,6 +7,7 @@ import uuid
 import os
 import shutil
 from services.processDocs import process
+from services.model import Model
 
 server = Server(__name__)
 
@@ -35,7 +36,7 @@ def upload_files():
     text = process(uploaded_files=files)
     print("*******:", text)
     kwargs = {"data": text, "callback_api": "http://127.0.0.1:5000/callback_result",
-              "rds_task_id": rds_task_id,"name":"sevenhills"}
+              "rds_task_id": rds_task_id,"name":request.form["name"]}
     task = celery.send_task("tasks.create_bot", kwargs=kwargs)
     # ------
 
@@ -57,20 +58,23 @@ def callback_result():
 @app.route('/chat', methods=['POST'])
 @cross_origin()
 def get_response():
-    rds_task_id = str(uuid.uuid4())
+    # rds_task_id = str(uuid.uuid4())
     # it will come from uploaded docs
     req_data = request.get_json()
+    llm=Model()    
+        # result = llm.get_response_from_watsonx(data=_data)
+    result=llm.get_response_singelton(data=req_data)
+    return result
+    # data = "appended data"
+    # kwargs = {"_data": req_data, "callback_api": "http://127.0.0.1:5000/callback_result",
+    #           "rds_task_id": rds_task_id}
+    # task = celery.send_task(
+    #     "tasks.get_response", kwargs=kwargs)
+    # # ------
 
-    data = "appended data"
-    kwargs = {"_data": req_data, "callback_api": "http://127.0.0.1:5000/callback_result",
-              "rds_task_id": rds_task_id}
-    task = celery.send_task(
-        "tasks.get_response", kwargs=kwargs)
-    # ------
-
-    # for handling callback api
-    rds.set(rds_task_id, task.id)
-    return jsonify({"taskId": task.id})
+    # # for handling callback api
+    # rds.set(rds_task_id, task.id)
+    # return jsonify({"taskId": task.id})
 
 
 # Instead of this API , I used socket-> for avoiding multiple request from client
@@ -96,7 +100,7 @@ def get_result(task_id):
 def delete_file():
     try:
         name=request.get_json()["name"]
-        db.vectordb.delete_one({"name":name})
+        db.vectordb.delete_many({"name":name})
         file_path = os.path.join('./vector_db_store',name)
         print(file_path)
         if os.path.exists(file_path):

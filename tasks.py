@@ -48,7 +48,11 @@ def get_response(_data, callback_api, rds_task_id):
     # loan status operation
     print(_data,"Data is ***********")
     try:
-        llm=Model()
+        print("inside model")
+        llm=Model()      
+        print("oudside mdoel")
+
+        
         # result = llm.get_response_from_watsonx(data=_data)
         result=llm.get_response_singelton(data=_data)
 

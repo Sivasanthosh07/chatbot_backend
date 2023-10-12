@@ -17,7 +17,7 @@ class VectorDB:
         self.llm=llm
         self.embeddings = HuggingFaceEmbeddings()
 
-        self.vectordb = Chroma(persist_directory=self.name, embedding_function=self.embeddings)
+        self.vectordb = Chroma(persist_directory='./vector_db_store/'+self.name, embedding_function=self.embeddings)
         self.qa = RetrievalQA.from_chain_type(llm=self.llm, chain_type="stuff", retriever=self.vectordb.as_retriever())
     def get_qa(self):
         return self.qa
