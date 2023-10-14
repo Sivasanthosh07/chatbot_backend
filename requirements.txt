@@ -11,3 +11,4 @@ celery
 flask_socketio
 flask_cors
 redis
+flask_pymongo
