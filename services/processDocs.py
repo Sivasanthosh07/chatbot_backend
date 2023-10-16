@@ -31,20 +31,19 @@ load_dotenv()
 
 def process(uploaded_file, from_local=False):
     text = ""
-    file = uploaded_file[0]
-    name = file.filename
-    extension = name.split(".")[1]
+    for file in uploaded_file:
+        name = file.filename
+        extension = name.split(".")[1]
 
-    if (from_local):       
-        print(extension)
+        print("****************",extension)
         if file is not None and extension == "txt":
-            stringio = StringIO(file.read().decode("utf-8"))
-            txt = stringio.read()
-            text += txt
+                stringio = StringIO(file.read().decode("utf-8"))
+                txt = stringio.read()
+                text += txt
         if file is not None and extension == "pdf":
-            pdf_reader = PdfReader(file)
-            for page in pdf_reader.pages:
-                text += page.extract_text()
-    else:       
-        text += file.read().decode("utf-8")
+                pdf_reader = PdfReader(file)
+                for page in pdf_reader.pages:
+                    text += page.extract_text()
+        else:       
+            text += file.read().decode("utf-8")
     return json.dumps({"text": text, "name": name, "extension": extension})

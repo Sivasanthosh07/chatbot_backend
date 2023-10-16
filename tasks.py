@@ -2,6 +2,7 @@
 from services.model import Model
 from celery import Celery
 import requests
+import uuid
 import redis
 import json
 import time
@@ -71,29 +72,36 @@ llm={}
 def create_bot(data,callback_api,rds_task_id,name):
     try:
         print(type(data),"***")
+        
         data=json.loads(data)
         # filename='./docs/'+data["name"]+'.'+data["extension"]+''
-        filename='./docs/'+name+'.'+data["extension"]
+        filename='./docs/'+name+'.'+"txt"
         print("filename:",filename)
 
         with open(filename, 'w') as f:
             f.write(data["text"])
         print("file write done")
-        # loader = TextLoader(filename)
-        # documents = loader.load()
-        # text_splitter = CharacterTextSplitter(separator="question",chunk_size=1000)
-        # texts = text_splitter.split_documents(documents)
-        # embeddings = HuggingFaceEmbeddings()
-        # docsearch = Chroma.from_documents(texts, embeddings,persist_directory='./vector_db_store/'+name)   
+        loader = TextLoader(filename)
+        documents = loader.load()
+        text_splitter = CharacterTextSplitter(separator="question",chunk_size=1000)
+        texts = text_splitter.split_documents(documents)
+        embeddings = HuggingFaceEmbeddings()
+        docsearch = Chroma.from_documents(texts, embeddings,persist_directory='./vector_db_store/'+name)   
         task_id = rds.get(rds_task_id).decode("utf-8")
         url = callback_api
+        idd=str(uuid.uuid4())
         result={}
         result["task_id"] = task_id
         result["name"]=name
         result["path"]='./vector_db_store/'+name
-        # db_result = db.vectordb.insert_one(result)
-        # result["id"] = db_result.inserted_id
-        result["id"]="e28add18-bde3-4f25-88d9-18a0771c398c"
+        result["status"]="active"
+        result["_id"]=idd
+        result["id"]=idd
+        db_result = db.vectordb.insert_one(result)
+        result["id"] = str(db_result.inserted_id)
+        print(type(result["id"]))
+        print(result)
+        # result["id"]="e28add18-bde3-4f25-88d9-18a0771c398c"
         requests.post(url, data=json.dumps(result), headers=headers)
         print("************************************")        
         return result    
@@ -103,25 +111,24 @@ def create_bot(data,callback_api,rds_task_id,name):
 
 @app.task()
 def chat_bot(data,callback_api,rds_task_id):
-    print(data)
+    data=json.loads(data)
+    print((data))
     task_id = rds.get(rds_task_id).decode("utf-8")
    
-    import random
-    ind = random.randint(0, 4)
-    test_chat = [
-        "hey",
-        "Hi",
-        "How r you",
-        "what r u doing",
-        "thank you"
-    ]
+    # import random
+    # ind = random.randint(0, 4)
+    # test_chat = [
+    #     "hey",
+    #     "Hi",
+    #     "How r you",
+    #     "what r u doing",
+    #     "thank you"
+    # ]
 
     result={}
     result["task_id"] = task_id   
-    result["answer"] = test_chat[ind]
+    result["answer"] = data["answer"]
     result["status"]=True   
-    import time
-    time.sleep(2)
     requests.post(callback_api, data=json.dumps(result), headers=headers)
 
     return result
