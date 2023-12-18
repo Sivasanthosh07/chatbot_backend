@@ -62,11 +62,23 @@ class Model:
     def get_response_singelton(self,data):
         name=data["name"]
         vectorDb=VectorDB(name,self.llm)
-        res=vectorDb.qa.run(data["question"] + "and dont ask me confirmations")
+        res=vectorDb.qa.run(data["question"])
+        ans=self.remove_after_context(res)
         return json.dumps({
-            "answer":res,
+            "answer":ans,
             "status":True,
         })
+    def remove_after_context(self,input_text):
+        # Find the index of the word 'context' in the input text
+        context_index = input_text.lower().find('context')
+
+        # Remove the text after 'context' if it exists
+        if context_index != -1:
+            output_text = input_text[:context_index]
+        else:
+            output_text = input_text
+
+        return output_text
         
         
 # llm=Model()

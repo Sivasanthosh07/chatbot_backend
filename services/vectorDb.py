@@ -5,12 +5,12 @@ from langchain.embeddings import HuggingFaceEmbeddings
 class VectorDB:
     # singelton class
 
-    def __new__(cls,name,llm):
-        if not hasattr(cls, name):
-            # print(name,"888888")
-            # cls.name=name
-            cls.name = super(VectorDB, cls).__new__(cls)
-        return cls.name
+    # def __new__(cls,name,llm):
+    #     if not hasattr(cls, name):
+    #         # print(name,"888888")
+    #         # cls.name=name
+    #         cls.name = super(VectorDB, cls).__new__(cls)
+    #     return cls.name
 
     def __init__(self,name,llm):
         self.name=name
