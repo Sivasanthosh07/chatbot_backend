@@ -18,7 +18,7 @@ app = Celery("tasks", backend='redis://localhost:6379/0',
 app.conf.broker_connection_retry_on_startup = True
 rds = redis.Redis(host='localhost', port=6379, db=1)
 headers = {'Content-Type': 'application/json'}
-llm={}
+llm = Model()
 
 
 # @app.task()
@@ -109,10 +109,41 @@ def create_bot(data,callback_api,rds_task_id,name):
         return json.dumps({'error':str(e)}),500
 
 
+# @app.task()
+# def chat_bot(data,callback_api,rds_task_id):
+#     data=json.loads(data)
+#     print(data)
+#     task_id = rds.get(rds_task_id).decode("utf-8")
+   
+#     # import random
+#     # ind = random.randint(0, 4)
+#     # test_chat = [
+#     #     "hey",
+#     #     "Hi",
+#     #     "How r you",
+#     #     "what r u doing",
+#     #     "thank you"
+#     # ]
+
+#     result={}
+#     result["task_id"] = task_id   
+#     result["answer"] = data["answer"]
+#     result["status"]=True   
+#     requests.post(callback_api, data=json.dumps(result), headers=headers)
+
+#     return result
+
 @app.task()
-def chat_bot(data,callback_api,rds_task_id):
-    data=json.loads(data)
-    print((data))
+def chat_bot(data,callback_api,rds_task_id):   
+
+    print("*************///***************///*****************")
+    print(data)
+    print("--",callback_api)
+    print("==",rds_task_id)
+    print("*************||***************||*****************")
+    wtx_result = llm.get_response_singelton(data=data)      
+    print("WTX_RESULT:::", type(wtx_result))
+    res_data=json.loads(wtx_result)
     task_id = rds.get(rds_task_id).decode("utf-8")
    
     # import random
@@ -127,7 +158,7 @@ def chat_bot(data,callback_api,rds_task_id):
 
     result={}
     result["task_id"] = task_id   
-    result["answer"] = data["answer"]
+    result["answer"] = res_data["answer"]
     result["status"]=True   
     requests.post(callback_api, data=json.dumps(result), headers=headers)
 

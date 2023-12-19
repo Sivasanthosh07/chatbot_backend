@@ -1,2 +1,5 @@
 .venv
 __pycache__
+vector_db_store
+docs
+.env

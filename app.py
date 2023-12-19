@@ -57,33 +57,34 @@ def callback_result():
     return jsonify("done")
 
 
+# @app.route('/chat', methods=['POST'])
+# @cross_origin()
+# def get_response():
+#     rds_task_id = str(uuid.uuid4())
+#     # # it will come from uploaded docs
+#     req_data = request.get_json()
+#     llm = Model()
+#     # result = llm.get_response_from_watsonx(data=_data)
+#     result = llm.get_response_singelton(data=req_data)
+  
+#     kwargs = {"data": result, "callback_api": "http://127.0.0.1:5000/callback_result",
+#               "rds_task_id": rds_task_id}
+#     task = celery.send_task("tasks.chat_bot", kwargs=kwargs)
+    
+#     rds.set(rds_task_id, task.id)
+#     return jsonify({"taskId": task.id})
+
 @app.route('/chat', methods=['POST'])
 @cross_origin()
 def get_response():
-    rds_task_id = str(uuid.uuid4())
-    # # it will come from uploaded docs
-    req_data = request.get_json()
-    llm = Model()
-    # result = llm.get_response_from_watsonx(data=_data)
-    result = llm.get_response_singelton(data=req_data)
+    rds_task_id = str(uuid.uuid4()) 
+    req_data = request.get_json()   
   
-    kwargs = {"data": result, "callback_api": "http://127.0.0.1:5000/callback_result",
+    kwargs = {"data": req_data, "callback_api": "http://127.0.0.1:5000/callback_result",
               "rds_task_id": rds_task_id}
-    task = celery.send_task("tasks.chat_bot", kwargs=kwargs)
-    
+    task = celery.send_task("tasks.chat_bot", kwargs=kwargs)    
     rds.set(rds_task_id, task.id)
     return jsonify({"taskId": task.id})
-
-    # data = "appended data"
-    # kwargs = {"_data": req_data, "callback_api": "http://127.0.0.1:5000/callback_result",
-    #           "rds_task_id": rds_task_id}
-    # task = celery.send_task(
-    #     "tasks.get_response", kwargs=kwargs)
-    # # ------
-
-    # # for handling callback api
-    # rds.set(rds_task_id, task.id)
-    # return jsonify({"taskId": task.id})
 
 
 
