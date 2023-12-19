@@ -33,7 +33,7 @@ class Model:
             GenParams.MAX_NEW_TOKENS: 250
         }
 
-        self.api_key = os.getenv('API_KEY')
+        self.api_key = os.getenv('APIKEY')
         self.token_url = "https://iam.cloud.ibm.com/identity/token"
         self.token = ""
         self.model_id = ModelTypes.LLAMA_2_70B_CHAT

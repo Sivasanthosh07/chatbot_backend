@@ -16,7 +16,7 @@ class Server:
         self.redis = redis.Redis(host='localhost', port=6379, db=1)
         self.cors = CORS(self.app)
         self.app.config['CORS_HEADERS'] = 'Content-Type'
-        self.app.config["MONGO_URI"] = "mongodb://localhost:27017/vectordb"
+        self.app.config["MONGO_URI"] = "mongodb+srv://santhosh:santhosh@cluster0.2cuvf2a.mongodb.net/vectordb"
         self.db = PyMongo(self.app).db
         self.app.config.update(
             CELERY_BROKER_URL='redis://localhost:6379/0',
